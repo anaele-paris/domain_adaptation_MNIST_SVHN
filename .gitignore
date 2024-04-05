@@ -14,3 +14,9 @@ data/
 mnist_data/
 svhn_data/
 old/
+
+# Virtual environments
+.venv
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
