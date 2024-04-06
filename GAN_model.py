@@ -9,6 +9,15 @@ from utils import cycle_consistency_loss, identity_loss
 import itertools
 import os
 
+if torch.cuda.is_available():
+    device = "cuda"
+elif torch.backends.mps.is_available():
+    device = "mps"
+else:
+    device = "cpu"
+
+print("Device: ", device)
+
 save_dir = 'saved_models'
 os.makedirs(save_dir, exist_ok=True)
 
@@ -30,16 +39,16 @@ mnist_loader = DataLoader(mnist_dataset, batch_size=batch_size, shuffle=True)
 svhn_loader = DataLoader(svhn_dataset, batch_size=batch_size, shuffle=True)
 
 # Define input and output channels
-input_channels = 3  # For SVHN dataset
-output_channels = 1  # For MNIST dataset
+input_channels = 1  # For SVHN dataset
+output_channels = 3  # For MNIST dataset
 
 # Define generators
-G_MNIST2SVHN = Generator(input_channels, output_channels)
-G_SVHN2MNIST = Generator(output_channels, input_channels)
+G_MNIST2SVHN = Generator(input_channels, output_channels).to(device)
+G_SVHN2MNIST = Generator(output_channels, input_channels).to(device)
 
 # Define discriminators
-D_MNIST = Discriminator(input_channels)
-D_SVHN = Discriminator(output_channels)
+D_MNIST = Discriminator(input_channels).to(device)
+D_SVHN = Discriminator(output_channels).to(device)
 
 # Initialize optimizers
 optimizer_G = optim.Adam(itertools.chain(G_MNIST2SVHN.parameters(), G_SVHN2MNIST.parameters()), lr=0.0002, betas=(0.5, 0.999))
@@ -53,7 +62,11 @@ criterion_identity = nn.L1Loss()
 # Training loop
 num_epochs = 100
 for epoch in range(num_epochs):
-    for i, (mnist_images, svhn_images) in enumerate(zip(mnist_loader, svhn_loader)):
+    for i, (mnist_batch, svhn_batch) in enumerate(zip(mnist_loader, svhn_loader)):
+
+        mnist_images = mnist_batch[0].to(device)
+        svhn_images = svhn_batch[0].to(device)
+
         # Clear gradients
         optimizer_G.zero_grad()
         optimizer_D_MNIST.zero_grad()
@@ -75,8 +88,8 @@ for epoch in range(num_epochs):
 
         # Compute generator and discriminator losses
         generator_loss = total_cycle_loss + 0.5 * total_identity_loss
-        discriminator_loss_MNIST = D_MNIST(mnist_images).mean() - D_MNIST(G_SVHN2MNIST(svhn_images)).mean()
-        discriminator_loss_SVHN = D_SVHN(svhn_images).mean() - D_SVHN(G_MNIST2SVHN(mnist_images)).mean()
+        discriminator_loss_MNIST = D_MNIST(mnist_images[0]).mean() - D_MNIST(G_SVHN2MNIST(svhn_images)).mean()
+        discriminator_loss_SVHN = D_SVHN(svhn_images[0]).mean() - D_SVHN(G_MNIST2SVHN(mnist_images)).mean()
 
         # Backward pass
         generator_loss.backward(retain_graph=True)

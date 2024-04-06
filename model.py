@@ -18,7 +18,8 @@ class Generator(nn.Module):
         )
         self.deconv1 = nn.ConvTranspose2d(256, 128, kernel_size=3, stride=2, padding=1, output_padding=1)
         self.deconv2 = nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1)
-        self.conv4 = nn.Conv2d(64, output_channels, kernel_size=7, stride=1, padding=3)
+        # self.conv4 = nn.Conv2d(64, output_channels, kernel_size=7, stride=1, padding=3)
+        self.conv4 = nn.Conv2d(64, output_channels, kernel_size=3, stride=1, padding=1)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
@@ -37,7 +38,7 @@ class Discriminator(nn.Module):
         self.conv2 = nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1)
         self.conv3 = nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1)
         self.conv4 = nn.Conv2d(256, 512, kernel_size=4, stride=2, padding=1)
-        self.conv5 = nn.Conv2d(512, 1, kernel_size=4, stride=1, padding=0)
+        self.conv5 = nn.Conv2d(512, 1, kernel_size=4, stride=1, padding=2)
 
     def forward(self, x):
         x = F.leaky_relu(self.conv1(x), 0.2)
