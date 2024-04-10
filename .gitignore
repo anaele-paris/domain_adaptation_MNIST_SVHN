@@ -3,11 +3,13 @@ B1.4.8 -T- Autoencoders part1, using Tensorflow, teachers_ sheet.ipynb
 B1.4.9 -ABC clean- AutoEncoders part2, using Keras, students_ sheet v2.ipynb
 B1.4.9 AutoEncoders &AE part2, using Keras, teachers_ sheet.ipynb
 Notbook_VAE_Anaele.ipynb
-dann_svhn.pth
 
 # Images
 WhatsApp Image 2024-03-22 at 11.06.50.jpeg
 WhatsApp Image 2024-03-22 at 11.07.50.jpeg
+
+# Preprocessed data
+mnist_colorized_gray.pkl
 
 # Directories
 data/
